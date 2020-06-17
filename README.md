@@ -2,29 +2,37 @@
 导入/导出excel
 
 ## 安装
-
 ```js
 npm i @stroll/excel
 
 ```
+
 ## 引入
 ```js
 import Vue from 'vue'
-import Excel from '@stroll/excel'
 
-Vue.prototype.$excel = Excel
+import Excel from '@stroll/excel'
+Vue.use(Excel)
+//  or
+import { exportExcel, exportCSV, importExcel } from '@stroll/excel'
+Vue.prototype.$exportCSV = exportCSV
+Vue.prototype.$exportExcel = exportExcel
+Vue.component('importExcel', importExcel)
+
+
 
 ```
+
 ## 调用
 ```js
-// 导入 Excel
+
 importExcel()
 
 // 导出 csv
 // tHeader 数组, 表头
 // filterKey 数组， 需要导出的字段key
 // list 数组， 需要导出的数组
-exportCSV({tHeader, filterKey, list})
+this.$exportCSV({ tHeader, filterKey, list })
 
 // 导出 Excel
 // tableJson 数组，表设置 （支持多sheet）示例：[{header, multiHeader, merges, filterKey, list, sheetName}, {header, multiHeader, merges, filterKey, list, sheetName}]
@@ -36,6 +44,30 @@ exportCSV({tHeader, filterKey, list})
   // sheetName 字符串，sheet名称
 // filename 字符串，文件名称 默认 `${随机字符串}-${当前时间戳}`
 // bookType 字符串，文件格式 默认 xlsx
-exportExcel({ tableJson, filename, bookType })
+this.$exportExcel({ tableJson, filename, bookType })
 
 ```
+### 导入 Excel
+````html
+<template>
+  <!-- 导入成功后在写入 xlsxInfo 变量，或使用 onXlsx 回调函数 操作数据 -->
+  <importExcel :xlsxInfo="xlsxInfo" @onXlsx="onXlsx" />
+</template>
+````
+````js
+data () {
+  return {
+    xlsxInfo: {
+      data: [], // 表格数据
+      dataRef: [], // 表格坐标
+      fileNameHidden: false, // 文件名是否展示，默认展示
+      inputStyle: {border: '1px solid #409eff'} // 按钮样式
+    }
+  }
+}
+methods: {
+  onXlsx (res) {
+    console.log(res)
+  }
+}
+````

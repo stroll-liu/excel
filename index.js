@@ -51,7 +51,9 @@ export async function exportExcel ({ tableJson = [], filename, bookType }) {
 }
 
 // 导入 Excel
-import importExcel from './src/importExcel/index.vue'
+import imExcel from './src/importExcel/index.vue'
+
+export const importExcel = imExcel
 
 export default {
   install: Vue => {

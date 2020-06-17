@@ -1,5 +1,9 @@
 <template>
-  <input id="file" name="file" type="file" @change="importfxx" accept=".xlsx,.xls,.csv" />
+<div class="importExcelBox">
+  <input ref="importExcel" name="importExcel" class="importExcel" type="file" @change="importfxx" accept=".xlsx,.xls,.csv" />
+  <button :style="inputStyle">{{xlsxInfo.buttonName || '导入Excel'}}</button>
+  <span v-if="!xlsxInfo.fileNameHidde && xlsxInfo.name">{{xlsxInfo.name}}</span>
+</div>
 </template>
 
 <script>
@@ -11,22 +15,42 @@ export default {
       type: Object,
       default: () => ({
         data: [],
-        dataRef: []
+        dataRef: [],
+        fileNameHidde: false
       })
     }
   },
   data() {
-    return {}
+    return {
+      inputStyle: `
+        outline: none;
+        color: #ffffff;
+        padding: 3px 7px;
+        margin: 3px;
+        border: 1px solid #409eff;
+        background-color: #409eff;
+        border-radius: 3px;
+      `
+    }
+  },
+  mounted() {
+    this.init()
   },
   methods: {
+    init () {
+      this.setStyle()
+    },
     importfxx (e) {
-      const files = e.target.files;
-      if (files && files[0])
+      const files = e.target.files
+      if (files && files[0]) {
         this.filePro(files[0], (data, dataRef) => {
           this.xlsxInfo.data = data || []
           this.xlsxInfo.dataRef = dataRef || []
+          this.$set(this.xlsxInfo, 'name', files[0].name || '')
+          this.xlsxInfo.size = files[0].size || 0
           this.onXlsx(this.xlsxInfo)
         })
+      }
     },
     filePro (file, callback) {
       const make_cols = refstr =>
@@ -50,14 +74,34 @@ export default {
         })
         callback(data, make_cols(ws["!ref"]))
       }
-      reader.readAsBinaryString(file)
+      file && reader.readAsBinaryString(file)
     },
     onXlsx (res) {
       this.$emit('onXlsx', res)
+    },
+    setStyle () {
+      if (this.xlsxInfo.inputStyle) {
+        const styleKey = Object.keys(this.xlsxInfo.inputStyle)
+        this.inputStyle += styleKey.map(key => {
+          return `${key}: ${this.xlsxInfo.inputStyle[key]}`
+        }).join(";")
+      }
     }
   }
 };
 </script>
 
 <style>
+.importExcelBox{
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+.importExcel {
+  position: absolute;
+  font-size: 200px;
+  right: 0;
+  top: 0;
+  opacity: 0;
+}
 </style>
